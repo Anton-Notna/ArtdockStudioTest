@@ -8,7 +8,7 @@ namespace Core.Abilities
         [SerializeField]
         private float _duration = 1f;
 
-        protected override float StartExecute(Context context) => _duration;
+        protected override float StartExecute(IReadOnlyContext context) => _duration;
 
 #if UNITY_EDITOR
         private void OnValidate()

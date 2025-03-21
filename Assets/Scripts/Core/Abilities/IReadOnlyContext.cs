@@ -8,10 +8,10 @@ namespace Core.Abilities
     {
         public GameObject Caster { get; }
 
+        public CharacterAnimator Animator { get; }
+
         public IReadOnlyList<GameObject> Targets { get; }
 
         public Vector3 CastOrigin { get; }
-
-        public CharacterAnimator Animator { get; }
     }
 }

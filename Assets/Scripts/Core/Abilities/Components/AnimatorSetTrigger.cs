@@ -9,7 +9,7 @@ namespace Core.Abilities
         [SerializeField]
         private AnimatorTrigger _trigger;
 
-        protected override float StartExecute(Context context)
+        protected override float StartExecute(IReadOnlyContext context)
         {
             context.Animator.SetTrigger(_trigger);
             return default;

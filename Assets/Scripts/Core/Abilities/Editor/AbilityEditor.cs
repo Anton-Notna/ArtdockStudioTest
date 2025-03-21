@@ -7,56 +7,139 @@ using System.Collections.Generic;
 
 namespace Core.Abilities.Editor
 {
+    public class DerivedTypesMenu
+    {
+        private readonly GenericMenu _menu;
+
+        public DerivedTypesMenu(Type baseType, Action<Type> onSelected)
+        {
+            _menu = new GenericMenu();
+
+            IEnumerable<Type> componentTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type.IsSubclassOf(baseType) && type.IsAbstract == false);
+
+            foreach (Type type in componentTypes)
+                _menu.AddItem(new GUIContent(type.Name), false, () => onSelected.Invoke(type));
+        }
+
+        public void ShowAsContext() => _menu.ShowAsContext();
+    }
+
     [CustomEditor(typeof(Ability))]
     public class AbilityEditor : UnityEditor.Editor
     {
         private readonly List<string> _unlinkedComponentsPaths = new List<string>();
+        private readonly List<string> _unlinkedSelectorsPaths = new List<string>();
+
+        private SerializedProperty _selector;
         private SerializedProperty _components;
-        private GenericMenu _addComponentMenu;
-        private string _componentsFolder;
+        private DerivedTypesMenu _changeSelector;
+        private DerivedTypesMenu _addComponent;
+        private string _previousTargetName;
+        private string _assetsFolder;
+        private bool _assetsFolderInited;
+
+        private int UnlinkedAssetsCount => _unlinkedComponentsPaths.Count + _unlinkedSelectorsPaths.Count;
 
         public override void OnInspectorGUI()
         {
+            if (_previousTargetName != target.name)
+                InitAssetsFolder();
+
+            if (_assetsFolderInited == false)
+                return;
+
+            serializedObject.Update();
+
+            DrawSelector();
             DrawComponents();
+
+            if (serializedObject.ApplyModifiedProperties())
+                RefreshUnlinkedAssets();
+
             DrawAddComponent();
-            DrawUnlinkedComponents();
+            DrawUnlinkedAssets();
         }
 
         private void OnEnable()
         {
+            _selector = serializedObject.FindProperty("_selectorPreset");
             _components = serializedObject.FindProperty("_components");
-            _addComponentMenu = new GenericMenu();
+            _changeSelector = new DerivedTypesMenu(typeof(SelectorPreset), ChangeSelector);
+            _addComponent = new DerivedTypesMenu(typeof(AbilityComponent), AddComponent);
 
-            IEnumerable<Type> componentTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsSubclassOf(typeof(AbilityComponent)) && type.IsAbstract == false);
-
-            foreach (Type type in componentTypes)
-                _addComponentMenu.AddItem(new GUIContent(type.Name), false, () => AddComponent(type));
-
-            string abilityPath = AssetDatabase.GetAssetPath(target);
-            string directory = Path.GetDirectoryName(abilityPath);
-            _componentsFolder = Path.Combine(directory, target.name);
-
-            if (AssetDatabase.IsValidFolder(_componentsFolder) == false)
-                AssetDatabase.CreateFolder(directory, target.name);
-
-            RefreshUnlinkedComponents();
-            Undo.undoRedoPerformed += RefreshUnlinkedComponents;
-
+            InitAssetsFolder();
+            Undo.undoRedoPerformed += RefreshUnlinkedAssets;
         }
 
-        private void OnDisable() => Undo.undoRedoPerformed -= RefreshUnlinkedComponents;
+        private void OnDisable() => Undo.undoRedoPerformed -= RefreshUnlinkedAssets;
+
+        private void InitAssetsFolder()
+        {
+            _assetsFolderInited = false;
+
+            if (target == null)
+                return;
+
+            if (string.IsNullOrEmpty(target.name))
+                return;
+
+            string abilityPath = AssetDatabase.GetAssetPath(target);
+            if (string.IsNullOrEmpty(abilityPath))
+                return;
+
+            string directory = Path.GetDirectoryName(abilityPath);
+            _assetsFolder = Path.Combine(directory, target.name);
+            if (AssetDatabase.IsValidFolder(_assetsFolder) == false)
+                AssetDatabase.CreateFolder(directory, target.name);
+
+            _previousTargetName = target.name;
+            _assetsFolderInited = true;
+
+            RefreshUnlinkedAssets();
+        }
+
+        private void DrawSelector()
+        {
+            EditorGUILayout.LabelField("Selector Preset:", EditorStyles.miniLabel);
+
+            GUILayout.BeginVertical("box");
+            {
+                if (_selector.objectReferenceValue == null)
+                {
+                    EditorGUILayout.HelpBox("Empty Selector Preset. Ability requires Selector Preset.", MessageType.Error);
+                }
+                else
+                {
+                    EditorGUILayout.LabelField(_selector.objectReferenceValue.GetType().Name, EditorStyles.boldLabel);
+                    UnityEditor.Editor editor = CreateEditor(_selector.objectReferenceValue);
+                    editor.OnInspectorGUI();
+                }
+
+                if (GUILayout.Button("Change Selector Preset", EditorStyles.toolbarButton))
+                    _changeSelector.ShowAsContext();
+            }
+            GUILayout.EndVertical();
+        }
+
+        private void ChangeSelector(Type selectorType)
+        {
+            SelectorPreset selector = CreateAsset<SelectorPreset>(selectorType);
+
+            serializedObject.Update();
+            _selector.objectReferenceValue = selector;
+            serializedObject.ApplyModifiedProperties();
+            RefreshUnlinkedAssets();
+        }
 
         private void DrawComponents()
         {
-            serializedObject.Update();
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Components:", EditorStyles.miniLabel);
 
             for (int i = 0; i < _components.arraySize; i++)
                 DrawComponent(i);
-
-            if (serializedObject.ApplyModifiedProperties())
-                RefreshUnlinkedComponents();
         }
 
         private void DrawComponent(int index)
@@ -110,42 +193,45 @@ namespace Core.Abilities.Editor
 
         private void DrawAddComponent()
         {
-
-            EditorGUILayout.Separator();
+            EditorGUILayout.Space();
 
             if (GUILayout.Button("Add Component"))
-                _addComponentMenu.ShowAsContext();
+                _addComponent.ShowAsContext();
         }
 
         private void AddComponent(Type componentType)
         {
-            string assetPath = Path.Combine(_componentsFolder, $"{componentType.Name}_{Guid.NewGuid().ToString()}.asset");
-            assetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
-
-            AbilityComponent newComponent = ScriptableObject.CreateInstance(componentType) as AbilityComponent;
-            AssetDatabase.CreateAsset(newComponent, assetPath);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            AbilityComponent component = CreateAsset<AbilityComponent>(componentType);
 
             serializedObject.Update();
-
             _components.arraySize++;
-            _components.GetArrayElementAtIndex(_components.arraySize - 1).objectReferenceValue = newComponent;
-
+            _components.GetArrayElementAtIndex(_components.arraySize - 1).objectReferenceValue = component;
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawUnlinkedComponents()
+        private TBase CreateAsset<TBase>(Type type) where TBase : ScriptableObject
         {
-            if (_unlinkedComponentsPaths.Count == 0)
+            string assetPath = Path.Combine(_assetsFolder, $"{type.Name}_{Guid.NewGuid().ToString()}.asset");
+            assetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
+
+            TBase result = ScriptableObject.CreateInstance(type) as TBase;
+            AssetDatabase.CreateAsset(result, assetPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            return result;
+        }
+
+        private void DrawUnlinkedAssets()
+        {
+            if (UnlinkedAssetsCount == 0)
                 return;
 
             EditorGUILayout.Space();
-            EditorGUILayout.Separator();
 
             EditorGUILayout.BeginVertical("box");
             {
-                EditorGUILayout.HelpBox($"Unlinked components count: {_unlinkedComponentsPaths.Count}", MessageType.Info);
+                EditorGUILayout.HelpBox($"Unlinked components count: {UnlinkedAssetsCount}", MessageType.Info);
                 if (GUILayout.Button("Delete unlinked"))
                 {
                     if (EditorUtility.DisplayDialog(
@@ -154,21 +240,38 @@ namespace Core.Abilities.Editor
                         "Delete",
                         "Cancel"))
                     {
-                        DeleteUnlinkedComponents();
+                        DeleteUnlinkedAssets();
                     }
                 }
-
             }
             EditorGUILayout.EndVertical();
         }
 
-        private void RefreshUnlinkedComponents()
+        private void RefreshUnlinkedAssets()
         {
-            string[] guids = AssetDatabase.FindAssets($"t:{nameof(AbilityComponent)}", new[] { _componentsFolder });
-            HashSet<string> linkedAssets = new HashSet<string>();
+            if (_assetsFolderInited == false)
+                return;
 
             serializedObject.Update();
+            RefreshUnlinkedSelectors();
+            RefreshUnlinkedComponents();
+        }
 
+        private void RefreshUnlinkedSelectors()
+        {
+            IEnumerable<string> unlinkedSelectors = FindRelatedAssetsPaths<SelectorPreset>();
+            if (_selector.objectReferenceValue != null)
+            {
+                string currentSelector = AssetDatabase.GetAssetPath(_selector.objectReferenceValue);
+                unlinkedSelectors = unlinkedSelectors.Where(path => path != currentSelector);
+            }
+            _unlinkedSelectorsPaths.Clear();
+            _unlinkedSelectorsPaths.AddRange(unlinkedSelectors);
+        }
+
+        private void RefreshUnlinkedComponents()
+        {
+            HashSet<string> linkedComponents = new HashSet<string>();
             for (int i = 0; i < _components.arraySize; i++)
             {
                 SerializedProperty element = _components.GetArrayElementAtIndex(i);
@@ -176,30 +279,31 @@ namespace Core.Abilities.Editor
                     continue;
 
                 string path = AssetDatabase.GetAssetPath(element.objectReferenceValue);
-                linkedAssets.Add(path);
+                linkedComponents.Add(path);
             }
-
+            IEnumerable<string> unlinkedComponents = FindRelatedAssetsPaths<AbilityComponent>().Where(path => linkedComponents.Contains(path) == false);
             _unlinkedComponentsPaths.Clear();
-            for (int i = 0; i < guids.Length; i++)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guids[i]);
-                if (linkedAssets.Contains(path))
-                    continue;
-
-                _unlinkedComponentsPaths.Add(path);
-            }
+            _unlinkedComponentsPaths.AddRange(unlinkedComponents);
         }
 
-        private void DeleteUnlinkedComponents()
+        private void DeleteUnlinkedAssets()
         {
-            if (_unlinkedComponentsPaths.Count == 0)
+            if (UnlinkedAssetsCount == 0)
                 return;
+
+            for (int i = 0; i < _unlinkedSelectorsPaths.Count; i++)
+                AssetDatabase.DeleteAsset(_unlinkedSelectorsPaths[i]);
+            _unlinkedSelectorsPaths.Clear();
 
             for (int i = 0; i < _unlinkedComponentsPaths.Count; i++)
                 AssetDatabase.DeleteAsset(_unlinkedComponentsPaths[i]);
+            _unlinkedComponentsPaths.Clear();
 
             AssetDatabase.Refresh();
-            _unlinkedComponentsPaths.Clear();
         }
+
+        private IEnumerable<string> FindRelatedAssetsPaths<T>() where T : ScriptableObject =>
+            AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { _assetsFolder }).Select(guid => AssetDatabase.GUIDToAssetPath(guid));
+
     }
 }

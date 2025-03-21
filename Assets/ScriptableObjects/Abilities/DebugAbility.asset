@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9b578c310eeb784a852865920d5e536, type: 3}
   m_Name: DebugAbility
   m_EditorClassIdentifier: 
+  _selectorPreset: {fileID: 0}
   _components:
   - {fileID: 11400000, guid: ced556ef465c38d4b87dd9bf694db0b0, type: 2}
   - {fileID: 11400000, guid: 5a6d005f3f131ae40b873162c2098bf7, type: 2}
-  - {fileID: 11400000, guid: cff8be76d7b606340984cb2fda655ab2, type: 2}
-  - {fileID: 11400000, guid: 27083d466ad694a4eb20cc0b877efd64, type: 2}
+  - {fileID: 11400000, guid: 0d6c5ecd92e9e064084702bb72e491c9, type: 2}

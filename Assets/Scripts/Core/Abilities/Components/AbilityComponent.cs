@@ -7,7 +7,7 @@ namespace Core.Abilities
         private WaitForSeconds _cashed;
         private float _cashedDuration;
 
-        public WaitForSeconds Execute(Context context)
+        public WaitForSeconds Execute(IReadOnlyContext context)
         {
             float duration = StartExecute(context);
 
@@ -23,6 +23,6 @@ namespace Core.Abilities
             return _cashed;
         }
 
-        protected abstract float StartExecute(Context context);
+        protected abstract float StartExecute(IReadOnlyContext context);
     }
 }
