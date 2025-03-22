@@ -7,25 +7,6 @@ using System.Collections.Generic;
 
 namespace Core.Abilities.Editor
 {
-    public class DerivedTypesMenu
-    {
-        private readonly GenericMenu _menu;
-
-        public DerivedTypesMenu(Type baseType, Action<Type> onSelected)
-        {
-            _menu = new GenericMenu();
-
-            IEnumerable<Type> componentTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsSubclassOf(baseType) && type.IsAbstract == false);
-
-            foreach (Type type in componentTypes)
-                _menu.AddItem(new GUIContent(type.Name), false, () => onSelected.Invoke(type));
-        }
-
-        public void ShowAsContext() => _menu.ShowAsContext();
-    }
-
     [CustomEditor(typeof(Ability))]
     public class AbilityEditor : UnityEditor.Editor
     {
@@ -66,7 +47,7 @@ namespace Core.Abilities.Editor
         {
             _selector = serializedObject.FindProperty("_selectorPreset");
             _components = serializedObject.FindProperty("_components");
-            _changeSelector = new DerivedTypesMenu(typeof(SelectorPreset), ChangeSelector);
+            _changeSelector = new DerivedTypesMenu(typeof(Selector), ChangeSelector);
             _addComponent = new DerivedTypesMenu(typeof(AbilityComponent), AddComponent);
 
             InitAssetsFolder();
@@ -102,22 +83,27 @@ namespace Core.Abilities.Editor
 
         private void DrawSelector()
         {
-            EditorGUILayout.LabelField("Selector Preset:", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Selector:", EditorStyles.miniLabel);
 
             GUILayout.BeginVertical("box");
             {
                 if (_selector.objectReferenceValue == null)
                 {
-                    EditorGUILayout.HelpBox("Empty Selector Preset. Ability requires Selector Preset.", MessageType.Error);
+                    EditorGUILayout.HelpBox("Empty Selector. Ability requires Selector.", MessageType.Error);
                 }
                 else
                 {
                     EditorGUILayout.LabelField(_selector.objectReferenceValue.GetType().Name, EditorStyles.boldLabel);
+
+                    string description = (_selector.objectReferenceValue as Selector).Description;
+                    if (string.IsNullOrEmpty(description) == false)
+                        EditorGUILayout.HelpBox(description, MessageType.None);
+
                     UnityEditor.Editor editor = CreateEditor(_selector.objectReferenceValue);
                     editor.OnInspectorGUI();
                 }
 
-                if (GUILayout.Button("Change Selector Preset", EditorStyles.toolbarButton))
+                if (GUILayout.Button("Change Selector", EditorStyles.toolbarButton))
                     _changeSelector.ShowAsContext();
             }
             GUILayout.EndVertical();
@@ -125,7 +111,7 @@ namespace Core.Abilities.Editor
 
         private void ChangeSelector(Type selectorType)
         {
-            SelectorPreset selector = CreateAsset<SelectorPreset>(selectorType);
+            Selector selector = CreateAsset<Selector>(selectorType);
 
             serializedObject.Update();
             _selector.objectReferenceValue = selector;
@@ -184,6 +170,10 @@ namespace Core.Abilities.Editor
 
                 if (removed)
                     return;
+
+                string description = (element.objectReferenceValue as AbilityComponent).Description;
+                if (string.IsNullOrEmpty(description) == false)
+                    EditorGUILayout.HelpBox(description, MessageType.None);
 
                 UnityEditor.Editor editor = CreateEditor(element.objectReferenceValue);
                 editor.OnInspectorGUI();
@@ -259,7 +249,7 @@ namespace Core.Abilities.Editor
 
         private void RefreshUnlinkedSelectors()
         {
-            IEnumerable<string> unlinkedSelectors = FindRelatedAssetsPaths<SelectorPreset>();
+            IEnumerable<string> unlinkedSelectors = FindRelatedAssetsPaths<Selector>();
             if (_selector.objectReferenceValue != null)
             {
                 string currentSelector = AssetDatabase.GetAssetPath(_selector.objectReferenceValue);

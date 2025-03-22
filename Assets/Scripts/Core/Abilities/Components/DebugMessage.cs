@@ -2,7 +2,6 @@
 
 namespace Core.Abilities
 {
-    [CreateAssetMenu(fileName = "DebugMessage", menuName = "Scriptable Objects/Abilities/Components/DebugMessage")]
     public class DebugMessage : AbilityComponent
     {
         [SerializeField]

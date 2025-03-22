@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Core.Abilities
 {
-    public abstract class Selector : MonoBehaviour
+    public abstract class Selector : ScriptableObject 
     {
-        public abstract Type PresetType { get; }
+        public virtual string Description => null;
 
-        public abstract IEnumerator Select(SelectorPreset preset, ISelectionContext selection);
+        public abstract void ValidateSelection(Vector3 rawCastPoint, ISelectionContext context);
     }
 }

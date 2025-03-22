@@ -7,6 +7,8 @@ namespace Core.Abilities
         private WaitForSeconds _cashed;
         private float _cashedDuration;
 
+        public virtual string Description => null;
+
         public WaitForSeconds Execute(IReadOnlyContext context)
         {
             float duration = StartExecute(context);

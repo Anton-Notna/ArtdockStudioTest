@@ -1,5 +1,4 @@
-﻿using Core.Gfx;
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 
@@ -7,13 +6,7 @@ namespace Core.Abilities
 {
     public class AbilityExecutor : MonoBehaviour
     {
-        [SerializeField]
-        private Selectors _selectors;
-        [SerializeField]
-        private GameObject _caster;
-        [SerializeField]
-        private CharacterAnimator _animator;
-
+        private ICastPointSelector _castPoint;
         private Context _context;
         private Coroutine _process;
 
@@ -21,12 +14,13 @@ namespace Core.Abilities
 
         public bool Running => _process != null;
 
-        public void Init()
+        public void Init(ICastPointSelector castPoint)
         {
             if (Inited)
                 throw new InvalidOperationException($"AbilityExecutor already inited. GameObject: {gameObject.name}");
 
-            _context = new Context(_caster, _animator);
+            _context = new Context(gameObject);
+            _castPoint = castPoint;
         }
 
         public void Run(Ability ability)
@@ -50,14 +44,19 @@ namespace Core.Abilities
 
             StopCoroutine(_process);
             _process = null;
-            _selectors.StopSelection();
+            _castPoint.Deactivate();
             _context.Reset();
         }
 
         private IEnumerator Process(Ability ability)
         {
-            yield return ability.Select(_selectors, _context);
-            yield return ability.Execute(_context);
+            _castPoint.Activate();
+            yield return ability.Select(_castPoint, _context);
+            _castPoint.Deactivate();
+
+            if (_context.ValidSelection)
+                yield return ability.Execute(_context);
+
             Stop();
         }
     }

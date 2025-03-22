@@ -4,21 +4,21 @@ using UnityEngine;
 
 namespace Core.Abilities
 {
-
     [CreateAssetMenu(fileName = "Ability", menuName = "Scriptable Objects/Abilities/Ability")]
     public class Ability : ScriptableObject
     {
         [SerializeField]
-        private SelectorPreset _selectorPreset;
+        private Selector _selectorPreset;
         [SerializeField]
         private List<AbilityComponent> _components;
 
-        public IEnumerator Select(Selectors selectors, ISelectionContext context)
+        public IEnumerator Select(ICastPointSource castPointSource, ISelectionContext context)
         {
-            if (selectors.GetSelector(_selectorPreset.GetType(), out Selector selector) == false)
-                return null;
-
-            return selector.Select(_selectorPreset, context);
+            while (context.ValidSelection == false)
+            {
+                _selectorPreset.ValidateSelection(castPointSource.GetRawCastOrigin(), context);
+                yield return null;
+            }
         }
 
         public IEnumerator Execute(IReadOnlyContext context)
