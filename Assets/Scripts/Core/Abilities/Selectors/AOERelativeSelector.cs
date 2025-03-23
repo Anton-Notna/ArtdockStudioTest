@@ -24,7 +24,8 @@ namespace Core.Abilities
             if (_colliders == null || _colliders.Length != _collidersLimit)
                 _colliders = new Collider[_collidersLimit];
 
-            int colliders = Physics.OverlapSphereNonAlloc(context.Caster.transform.TransformPoint(_relativeOffset), _radius, _colliders, _mask);
+            context.CastPoint = context.Caster.transform.TransformPoint(_relativeOffset);
+            int colliders = Physics.OverlapSphereNonAlloc(context.CastPoint, _radius, _colliders, _mask);
             for (int i = 0; i < colliders; i++)
                 context.AddTarget(_colliders[i].gameObject);
 

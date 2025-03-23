@@ -2,7 +2,6 @@
 
 namespace Core.Abilities
 {
-    [CreateAssetMenu(fileName = "WaitDuration", menuName = "Scriptable Objects/Abilities/Components/WaitDuration")]
     public class Delay : AbilityComponent
     {
         [SerializeField]

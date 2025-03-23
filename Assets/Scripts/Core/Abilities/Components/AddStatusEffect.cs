@@ -6,17 +6,10 @@ namespace Core.Abilities
 {
     public class AddStatusEffect : AbilityComponent
     {
-        [Flags]
-        private enum Target : byte
-        {
-            Caster = 1 << 0,
-            Targets = 1 << 1,
-        }
-
         [SerializeField]
         private StatusEffect _effect;
         [SerializeField]
-        private Target _target;
+        private GameObjectTarget _target;
         [SerializeField]
         private bool _permanent;
         [SerializeField]
@@ -24,10 +17,10 @@ namespace Core.Abilities
 
         protected override float StartExecute(IReadOnlyContext context)
         {
-            if ((_target & Target.Caster) != 0)
+            if ((_target & GameObjectTarget.Caster) != 0)
                 Add(context.Caster);
 
-            if ((_target & Target.Targets) != 0)
+            if ((_target & GameObjectTarget.Targets) != 0)
             {
                 for (int i = 0; i < context.Targets.Count; i++)
                     Add(context.Targets[i]);
@@ -36,12 +29,14 @@ namespace Core.Abilities
             return default;
         }
 
+#if UNITY_EDITOR
         private void OnValidate()
         {
             if (_statusDuration < 0f)
                 _statusDuration = 0f;
         }
-    
+#endif
+
         private void Add(GameObject target)
         {
             if (target == null)

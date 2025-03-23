@@ -14,13 +14,22 @@ namespace Core.Abilities
 
         public bool Running => _process != null;
 
-        public void Init(ICastPointSelector castPoint)
+        public void Setup(ICastPointSelector castPoint)
         {
             if (Inited)
                 throw new InvalidOperationException($"AbilityExecutor already inited. GameObject: {gameObject.name}");
 
             _context = new Context(gameObject);
             _castPoint = castPoint;
+        }
+
+        public void Clear()
+        {
+            if (Inited == false)
+                return;
+
+            Stop();
+            _context = null;
         }
 
         public void Run(Ability ability)

@@ -12,10 +12,10 @@ namespace Core.Characters
 
         public override void HandleRemove(StatusEffect effect) => HandleRemove((T)effect);
 
-        protected abstract void HandleAdd(T effect);
+        protected virtual void HandleAdd(T effect) { }
 
-        protected abstract void HandleUpdate(T effect);
+        protected virtual void HandleUpdate(T effect) { }
 
-        protected abstract void HandleRemove(T effect);
+        protected virtual void HandleRemove(T effect) { }
     }
 }
