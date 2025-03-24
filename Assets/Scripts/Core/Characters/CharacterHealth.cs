@@ -47,7 +47,7 @@ namespace Core.Characters
 
         protected override void HandleUpdate(ContinuousDamageEffect effect)
         {
-            if (_lastContinuousDamage + effect.CycleDelay < Time.time)
+            if (_lastContinuousDamage + effect.CycleDelay > Time.time)
                 return;
 
             _lastContinuousDamage = Time.time;

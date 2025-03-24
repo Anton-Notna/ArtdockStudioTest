@@ -12,15 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9b578c310eeb784a852865920d5e536, type: 3}
   m_Name: FireBombSpell
   m_EditorClassIdentifier: 
-  _selectorPreset: {fileID: 11400000, guid: 49694edf37b2f994180c05b8465ab071, type: 2}
+  _selectorPreset: {fileID: 11400000, guid: f7453ecc8f7f2cc4db3a14d7b8214492, type: 2}
   _components:
-  - {fileID: 11400000, guid: 63b3a1ca333142747b51bd7dbe68afb9, type: 2}
-  - {fileID: 11400000, guid: 1aad5d15a804ef64fa571b292203b2a8, type: 2}
   - {fileID: 11400000, guid: ad58b44454f60e24da1a04982f42ef42, type: 2}
-  - {fileID: 11400000, guid: 210b2bd4e03fe384da3f93d2ef913dca, type: 2}
+  - {fileID: 11400000, guid: 42b433d154c94e449bf5b7d4e712c1b8, type: 2}
+  - {fileID: 11400000, guid: 0c8425c755fc7ad47bdba240de2dd2f3, type: 2}
+  - {fileID: 11400000, guid: 88a1eaa996062ef4189c10301da1743c, type: 2}
   - {fileID: 11400000, guid: 5a7996a0761bdf34089f4996fae86717, type: 2}
   - {fileID: 11400000, guid: 63a05057c32c5574ea090637aef4622b, type: 2}
-  - {fileID: 11400000, guid: f0cd0c693b0992b4c8a083e22ccce1c0, type: 2}
   - {fileID: 11400000, guid: 1f5887aa0192d38488d95e76ec06bcad, type: 2}
   - {fileID: 11400000, guid: 56037343c3dff05488104a659dfceac0, type: 2}
   - {fileID: 11400000, guid: dd7c255106fd9b34ba1d30bd9f57c068, type: 2}

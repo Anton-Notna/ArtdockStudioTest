@@ -9,9 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 171a29ff7fd474245b49257ef9b27ba2, type: 3}
-  m_Name: SpawnBurstParticlesEffect_b89aef1d-5b27-43dd-9850-d9ae2abcc218
+  m_Script: {fileID: 11500000, guid: 655372b124f7dc44da3621b0306ace64, type: 3}
+  m_Name: AOESelector_c2ce55d8-7f7c-40e4-ba08-d4fbcc41294e
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 258735371562087442, guid: d32549a483b0bfd4c929b59eee51dde0, type: 3}
-  _target: 3
-  _localOffset: {x: 0, y: 0, z: 0}
+  _mask:
+    serializedVersion: 2
+    m_Bits: 192
+  _maxDistanceFromCaster: 10
+  _radius: 3
+  _collidersLimit: 10

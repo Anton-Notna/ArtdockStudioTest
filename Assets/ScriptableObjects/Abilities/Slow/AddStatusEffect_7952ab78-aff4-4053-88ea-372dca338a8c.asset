@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0967dbf2a106bc8408c885b529021cdc, type: 3}
-  m_Name: InstantDamage_ed0dd1f2-1e70-4106-a001-aaa85235a6ad
+  m_Script: {fileID: 11500000, guid: 5eb3d7c0f373bbe4e90eebfab818e7eb, type: 3}
+  m_Name: AddStatusEffect_7952ab78-aff4-4053-88ea-372dca338a8c
   m_EditorClassIdentifier: 
   _target: 2
-  _damage: 3
+  _effect: {fileID: 11400000, guid: 6ef57575a1205f3439dbdf5ce92bde68, type: 2}
+  _permanent: 0
+  _statusDuration: 10

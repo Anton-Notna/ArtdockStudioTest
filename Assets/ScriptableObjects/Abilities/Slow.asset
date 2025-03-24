@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9b578c310eeb784a852865920d5e536, type: 3}
+  m_Name: Slow
+  m_EditorClassIdentifier: 
+  _selectorPreset: {fileID: 11400000, guid: c336ee60d8c081b4fa6708357a37e73b, type: 2}
+  _components:
+  - {fileID: 11400000, guid: 166e501c76462f14f9b73a2f8faf74b8, type: 2}
+  - {fileID: 11400000, guid: 3520dfe33aa1acd4384a90fc03e965d2, type: 2}
+  - {fileID: 11400000, guid: b8118de1be718154488e00afaff8c1e2, type: 2}
+  - {fileID: 11400000, guid: 36bbcdefd8ee71641b5a21750980adb2, type: 2}
+  - {fileID: 11400000, guid: 3d77cc8e0d3f43f4880bc8bb78927a36, type: 2}
+  - {fileID: 11400000, guid: 3db5c7f3edbdd9f4eb6398a785636863, type: 2}
+  - {fileID: 11400000, guid: 7cd1e1cd012abca4fa549082b62f1ad6, type: 2}

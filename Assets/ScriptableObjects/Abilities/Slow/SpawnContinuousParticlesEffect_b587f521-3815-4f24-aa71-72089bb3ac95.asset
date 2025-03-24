@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf22275763a910a429da6bdc060dae3a, type: 3}
-  m_Name: SpawnContinuousParticlesEffect_1b283446-98da-4dc2-a1a9-5ae5478aa62c
+  m_Name: SpawnContinuousParticlesEffect_b587f521-3815-4f24-aa71-72089bb3ac95
   m_EditorClassIdentifier: 
   _prefab: {fileID: 7084632362694215689, guid: 6f3be72e2c634024ba06d61eedc3e8b4, type: 3}
   _target: 4

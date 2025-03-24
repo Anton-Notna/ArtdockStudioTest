@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 171a29ff7fd474245b49257ef9b27ba2, type: 3}
-  m_Name: SpawnBurstParticlesEffect_8d41f1c5-4bf5-4694-8d40-4a75b5d290d2
+  m_Script: {fileID: 11500000, guid: 2c3ce21567ebbb74b87dca7ce8765872, type: 3}
+  m_Name: AudioClipPlayer_cd564438-67cd-4ef3-9dff-8674fb4504e1
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 6854731548486689765, guid: 4153b8a36977ecb4c88ebc2447f5525d, type: 3}
-  _target: 1
-  _localOffset: {x: 0, y: 0, z: 0}
+  _clip: {fileID: 8300000, guid: 27a2380f2c3bcd943b8be4d4c5cbc03c, type: 3}
+  _volume: 1
