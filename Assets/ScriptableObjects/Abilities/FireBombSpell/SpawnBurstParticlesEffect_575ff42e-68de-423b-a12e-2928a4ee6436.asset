@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 171a29ff7fd474245b49257ef9b27ba2, type: 3}
+  m_Name: SpawnBurstParticlesEffect_575ff42e-68de-423b-a12e-2928a4ee6436
+  m_EditorClassIdentifier: 
+  _prefab: {fileID: 5511100758805451677, guid: 75ab195e104b60c439dcd3cc06ec6ddf, type: 3}
+  _target: 2
+  _localOffset: {x: 0, y: 0, z: 0}

@@ -1,5 +1,6 @@
 ﻿using Core.Abilities;
 using Core.Gfx;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Core.Characters
@@ -9,41 +10,35 @@ namespace Core.Characters
         [SerializeField]
         private PlayerCharacterControl _input;
         [SerializeField]
+        private PlayerCastPointSelector _selector;
+        [SerializeField]
         private CharacterAnimator _animator;
         [SerializeField]
         private CharacterMotor _motor;
         [SerializeField]
         private AbilityExecutor _abilityExecutor;
+        [SerializeField]
+        private CharacterAbilities _abilities;
 
         private bool _inited;
 
-        private class DummyCastPointSelector : ICastPointSelector
-        {
-            public Transform t;
-
-            public void Activate()
-            {
-                
-            }
-
-            public void Deactivate()
-            {
-                
-            }
-
-            public Vector3 GetRawCastOrigin()
-            {
-                return t.TransformPoint(Vector3.forward * 3);
-            }
-        }
-
-        public void Setup(Transform camera)
+        public void Setup(Camera camera, IEnumerable<KeyValuePair<CharacterAbilities.Slot, Ability>> abilities)
         {
             if (_inited)
                 Clear();
 
-            _input.Setup(camera);
-            _abilityExecutor.Setup(new DummyCastPointSelector() { t = transform });
+            _abilityExecutor.Setup(_selector);
+
+            foreach (var item in abilities)
+                _abilities.Replace(item.Key, item.Value);
+
+            _input.Setup(camera.transform);
+            _selector.Setup(camera);
+            _selector.Activated += _input.DisableInput;
+            _selector.Deactivated += _input.EnableInput;
+
+            _input.EnableInput();
+
             _inited = true;
         }
 
@@ -52,8 +47,11 @@ namespace Core.Characters
             if (_inited == false)
                 return;
 
+            _selector.Clear();
             _input.Clear();
             _abilityExecutor.Clear();
+            _selector.Activated -= _input.DisableInput;
+            _selector.Deactivated -= _input.EnableInput;
         }
 
         private void Update()

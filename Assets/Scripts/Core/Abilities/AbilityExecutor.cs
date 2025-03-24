@@ -60,7 +60,18 @@ namespace Core.Abilities
         private IEnumerator Process(Ability ability)
         {
             _castPoint.Activate();
-            yield return ability.Select(_castPoint, _context);
+            while (true)
+            {
+                ability.Selector.ValidateSelection(_castPoint.GetRawCastOrigin(), _context);
+
+                if (ability.Selector.Momentum)
+                    break;
+
+                if (_castPoint.Active)
+                    yield return null;
+                else
+                    break;
+            }
             _castPoint.Deactivate();
 
             if (_context.ValidSelection)

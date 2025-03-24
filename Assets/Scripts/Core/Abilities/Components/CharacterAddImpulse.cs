@@ -4,17 +4,17 @@ using UnityEngine;
 
 namespace Core.Abilities
 {
-    public class CharacterAddImpulse : AbilityComponent
+    public class CharacterAddImpulse : FindComponent<CharacterMotor>
     {
         private enum Case
         {
             LocalForward = 0,
             ToCastPoint = 1,
             FromCastPoint = 2,
+            ToCaster = 3,
+            FromCaster = 4,
         }
 
-        [SerializeField]
-        private GameObjectTarget _target;
         [SerializeField]
         private Case _case;
         [SerializeField]
@@ -22,18 +22,19 @@ namespace Core.Abilities
 
         public override string Description => "Adds impulse on Caster's/Target's CharacterMotor component";
 
-        protected override float StartExecute(IReadOnlyContext context)
+        protected override void ExecuteOnUnityComponent(IReadOnlyContext context, CharacterMotor motor)
         {
-            if ((_target & GameObjectTarget.Caster) != 0)
-                AddImpulse(context.CastPoint, context.Caster);
-
-            if ((_target & GameObjectTarget.Targets) != 0)
+            Vector3 direction = _case switch
             {
-                for (int i = 0; i < context.Targets.Count; i++)
-                    AddImpulse(context.CastPoint, context.Targets[i]);
-            }
+                Case.LocalForward => motor.transform.forward,
+                Case.FromCastPoint => (motor.transform.position - context.CastPoint).normalized,
+                Case.ToCastPoint => (context.CastPoint - motor.transform.position).normalized,
+                Case.FromCaster => (motor.transform.position - context.Caster.transform.position).normalized,
+                Case.ToCaster => (context.Caster.transform.position - motor.transform.position).normalized,
+                _ => throw new NotImplementedException(),
+            };
 
-            return default;
+            motor.AddImpulse(direction * _impulseMagnitude);
         }
 
 #if UNITY_EDITOR
@@ -43,24 +44,5 @@ namespace Core.Abilities
                 _impulseMagnitude = 0f;
         }
 #endif
-
-        private void AddImpulse(Vector3 castPoint, GameObject gameObject)
-        {
-            if (gameObject == null)
-                return;
-
-            if (gameObject.TryGetComponent(out CharacterMotor motor) == false)
-                return;
-
-            Vector3 direction = _case switch
-            {
-                Case.LocalForward => gameObject.transform.forward,
-                Case.FromCastPoint => (gameObject.transform.position - castPoint).normalized,
-                Case.ToCastPoint => (castPoint - gameObject.transform.position).normalized,
-                _ => throw new NotImplementedException(),
-            };
-
-            motor.AddImpulse(direction * _impulseMagnitude);
-        }
     }
 }

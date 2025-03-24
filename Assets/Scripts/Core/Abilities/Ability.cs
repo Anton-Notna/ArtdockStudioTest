@@ -12,14 +12,7 @@ namespace Core.Abilities
         [SerializeField]
         private List<AbilityComponent> _components;
 
-        public IEnumerator Select(ICastPointSource castPointSource, ISelectionContext context)
-        {
-            while (context.ValidSelection == false)
-            {
-                _selectorPreset.ValidateSelection(castPointSource.GetRawCastOrigin(), context);
-                yield return null;
-            }
-        }
+        public Selector Selector => _selectorPreset;
 
         public IEnumerator Execute(IReadOnlyContext context)
         {

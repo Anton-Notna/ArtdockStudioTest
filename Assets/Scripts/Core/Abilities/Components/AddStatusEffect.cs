@@ -1,32 +1,23 @@
 ﻿using Core.StatusEffects;
-using System;
 using UnityEngine;
 
 namespace Core.Abilities
 {
-    public class AddStatusEffect : AbilityComponent
+    public class AddStatusEffect : FindComponent<IEffectible>
     {
         [SerializeField]
         private StatusEffect _effect;
-        [SerializeField]
-        private GameObjectTarget _target;
         [SerializeField]
         private bool _permanent;
         [SerializeField]
         private float _statusDuration;
 
-        protected override float StartExecute(IReadOnlyContext context)
+        protected override void ExecuteOnUnityComponent(IReadOnlyContext context, IEffectible effectible)
         {
-            if ((_target & GameObjectTarget.Caster) != 0)
-                Add(context.Caster);
-
-            if ((_target & GameObjectTarget.Targets) != 0)
-            {
-                for (int i = 0; i < context.Targets.Count; i++)
-                    Add(context.Targets[i]);
-            }
-
-            return default;
+            if (_permanent)
+                effectible.AddPermanentEffect(_effect);
+            else
+                effectible.AddEffect(_effect, _statusDuration);
         }
 
 #if UNITY_EDITOR
@@ -36,19 +27,5 @@ namespace Core.Abilities
                 _statusDuration = 0f;
         }
 #endif
-
-        private void Add(GameObject target)
-        {
-            if (target == null)
-                return;
-
-            if (target.TryGetComponent(out IEffectible effectible) == false)
-                return;
-
-            if (_permanent)
-                effectible.AddPermanentEffect(_effect);
-            else
-                effectible.AddEffect(_effect, _statusDuration);
-        }
     }
 }

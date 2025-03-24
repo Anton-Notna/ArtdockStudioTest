@@ -3,25 +3,19 @@ using UnityEngine;
 
 namespace Core.Abilities
 {
-    public class InstantDamage : AbilityComponent
+    public class InstantDamage : FindComponent<IDamageable>
     {
         [SerializeField]
         private int _damage;
-        [SerializeField]
-        private GameObjectTarget _target;
 
-        protected override float StartExecute(IReadOnlyContext context)
+        public override string Description => "Damage targets.";
+
+        protected override void ExecuteOnUnityComponent(IReadOnlyContext context, IDamageable component)
         {
-            if ((_target & GameObjectTarget.Caster) != 0)
-                Damage(context.Caster);
-
-            if ((_target & GameObjectTarget.Targets) != 0)
+            component.TakeDamage(new Damage()
             {
-                for (int i = 0; i < context.Targets.Count; i++)
-                    Damage(context.Targets[i]);
-            }
-
-            return default;
+                Amount = _damage,
+            });
         }
 
 #if UNITY_EDITOR
@@ -31,19 +25,5 @@ namespace Core.Abilities
                 _damage = 0;
         }
 #endif
-
-        private void Damage(GameObject gameObject)
-        {
-            if (gameObject == null)
-                return;
-
-            if (gameObject.TryGetComponent(out IDamageable damageable) == false)
-                return;
-
-            damageable.TakeDamage(new Damage()
-            {
-                Amount = _damage,
-            });
-        }
     }
 }

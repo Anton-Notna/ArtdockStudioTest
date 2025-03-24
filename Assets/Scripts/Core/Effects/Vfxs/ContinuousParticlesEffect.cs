@@ -14,7 +14,7 @@ namespace Core.Effects.Vfx
 
         public void Play(Vector3 position, Quaternion rotation, float lifeTime, Transform parent = null)
         {
-            if (_parent == null)
+            if (parent == null)
             {
                 transform.position = position;
                 transform.rotation = rotation;

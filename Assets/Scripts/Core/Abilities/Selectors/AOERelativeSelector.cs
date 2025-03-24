@@ -15,6 +15,8 @@ namespace Core.Abilities
 
         private Collider[] _colliders;
 
+        public override bool Momentum => true;
+
         public override string Description => "Select multiple units in Radius.\nCastPoint will be relative to Caster.transform";
 
         public override void ValidateSelection(Vector3 rawCastPoint, ISelectionContext context)

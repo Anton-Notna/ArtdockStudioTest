@@ -17,6 +17,8 @@ namespace Core.Abilities
 
         public override string Description => "Select multiple units in Radius.\nCastPoint can be placed in MaxDistanceFromCaster.";
 
+        public override bool Momentum => false;
+
         public override void ValidateSelection(Vector3 rawCastPoint, ISelectionContext context)
         {
             context.ClearTargets();

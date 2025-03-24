@@ -36,6 +36,36 @@ namespace Core.Characters
             }
         }
 
+        [Serializable]
+        private class SmoothDampAngle
+        {
+            [SerializeField]
+            private float _smooth;
+
+            private float _current;
+            private float _target;
+            private float _velocity;
+
+            public float Current => _current;
+
+            public void Reset(float current)
+            {
+                _current = current;
+                _target = current;
+                _velocity = 0f;
+            }
+
+            public void SetTarget(float target) => _target = target;
+
+            public void Update(float deltaTime) => _current = Mathf.SmoothDampAngle(_current, _target, ref _velocity, _smooth, Mathf.Infinity, deltaTime);
+
+            public void OnValidate()
+            {
+                if (_smooth < 0f)
+                    _smooth = 0f;
+            }
+        }
+
         [SerializeField]
         private CharacterController _controller;
         [SerializeField]
@@ -43,9 +73,11 @@ namespace Core.Characters
         [SerializeField]
         private float _gravity = 20f;
         [SerializeField]
-        private SmoothDampVector _motion;
+        private SmoothDampVector _motion = new SmoothDampVector();
         [SerializeField]
-        private SmoothDampVector _impulse;
+        private SmoothDampAngle _rotation = new SmoothDampAngle();
+        [SerializeField]
+        private SmoothDampVector _impulse = new SmoothDampVector();
 
         private Vector3 _motionDirection;
         private float? _speedRatio;
@@ -86,9 +118,15 @@ namespace Core.Characters
             _motion.SetTarget(motion);
             _motion.Update(Time.deltaTime);
 
-            Vector3 lookDirection = Vector3.ProjectOnPlane(_motionDirection, Vector3.up).normalized;
+            Vector3 lookDirection = Vector3.ProjectOnPlane(_motionDirection, Vector3.up);
             if (lookDirection.sqrMagnitude > Mathf.Epsilon)
-                transform.rotation = Quaternion.LookRotation(lookDirection);
+            {
+                float rotation = Vector3.SignedAngle(Vector3.forward, lookDirection.normalized, Vector3.up);
+                _rotation.SetTarget(rotation);
+            }
+
+            _rotation.Update(Time.deltaTime);
+            transform.rotation = Quaternion.Euler(Vector3.up * _rotation.Current);
 
             _controller.Move(motion * Time.deltaTime);
         }
@@ -103,6 +141,7 @@ namespace Core.Characters
 
             _motion?.OnValidate();
             _impulse?.OnValidate();
+            _rotation?.OnValidate();
         }
     }
 }
